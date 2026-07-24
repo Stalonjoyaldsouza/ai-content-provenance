@@ -1,5 +1,5 @@
-import  { buildClaimRecord } from "./claim.js";
-import  { hashClaimRecord } from "./hash.js";
+import  { buildClaimRecord } from "../claim.js";
+import  { hashClaimRecord } from "../hash.js";
 
 const recordA = {
   claim: "The Eiffel Tower was completed in 1889.",
