@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@web3-storage/w3up-client": "^17.3.0",
+    "canonicalize": "^3.0.0",
+    "dotenv": "^17.4.2",
+    "ethers": "^6.17.0",
+    "pinata": "^2.5.6"
+  }
+}
