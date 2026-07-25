@@ -26,3 +26,4 @@ async function anchorBlockOfChain({ claim, sources, modelId, generatedAt }){
   };
 
 }
+export {anchorBlockOfChain}
