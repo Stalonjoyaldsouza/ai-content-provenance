@@ -1,5 +1,8 @@
 import { ethers } from "ethers";
 import abi from "./ClaimRegistry.json";
+import canonicalize from "canonicalize";
+
+
 
 const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL);
 const contract = new ethers.Contract(
@@ -14,15 +17,7 @@ export type VerificationResult =
   | { status: "TAMPERED"; cid: string }
   | { status: "ERROR"; message: string };
 
-// Same canonicalization logic as the pipeline — must match exactly,
-// or hashes computed here won't match what's on-chain.
-function canonicalize(record: Record<string, unknown>): string {
-  const sorted = Object.keys(record).sort().reduce((acc, key) => {
-    acc[key] = record[key];
-    return acc;
-  }, {} as Record<string, unknown>);
-  return JSON.stringify(sorted);
-}
+
 
 export async function verifyClaimByCID(cid: string): Promise<VerificationResult> {
   try {
@@ -31,7 +26,7 @@ export async function verifyClaimByCID(cid: string): Promise<VerificationResult>
     if (!res.ok) throw new Error("Could not fetch content from IPFS");
     const record = await res.json();
 
-    const canonicalJson = canonicalize(record);
+    const canonicalJson = canonicalize(record)!;
     const hash = ethers.keccak256(ethers.toUtf8Bytes(canonicalJson));
 
     let onChainRecord;
