@@ -15,6 +15,7 @@
     "dotenv": "^17.4.2",
     "ether": "^0.0.9",
     "ethers": "^6.17.0",
+    "merkletreejs": "^0.6.0",
     "pinata": "^2.5.6"
   }
 }
