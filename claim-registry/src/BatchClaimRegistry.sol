@@ -1,5 +1,4 @@
-pragma solidity ^0.8.24;
-
+pragma solidity ^0.8.24;f
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract BatchClaimRegistry {

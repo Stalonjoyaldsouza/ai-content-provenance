@@ -6,7 +6,7 @@ const leafB = keccak256(toUtf8Bytes("claimB"));
 const leafC = keccak256(toUtf8Bytes("claimC"));
 const leafD = keccak256(toUtf8Bytes("claimD"));
 console.log("leafB:",leafB)
-
+console.log("leafA:",leafA)
 
 const { tree, root } = buildMerkleTree([leafA, leafB, leafC, leafD]);
 console.log("Root:", root);
