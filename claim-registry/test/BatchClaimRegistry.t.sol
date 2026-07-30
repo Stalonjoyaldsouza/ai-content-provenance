@@ -24,7 +24,6 @@ contract BatchClaimRegistryTest is Test {
 
         uint256 batchId = registry.registerBatch(root, 4);
 
-       
         bytes32[] memory proof = new bytes32[](2);
         proof[0] = leafB;
         proof[1] = nodeCD;
