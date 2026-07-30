@@ -15,5 +15,24 @@ function anchorBatch(claiminput){
 
     const {tree,root}= buildMerkleTree(processed.map((p)=>p.hash))
 
+    const  tx  = await contract.registerBatch(root, processed.length);
+    const reciept = tx.wait();
 
+    const event = reciept.logs.map((log)=>{
+        try{
+            contract.interface.parserLog(log);
+        }
+        catch{
+            return null;
+        }
+    })
+    .find((e)=> e?.name === "BatchRegistered");
+
+    const  result = processed.map((p)=>({
+        ...p,
+        batchId: Number(batchId),
+        proof: getProofForClaim(tree, p.hash)
+    }));
+
+    return { batchId: Number(batchId), root, txHash: receipt.hash, claims: results };
 }       
