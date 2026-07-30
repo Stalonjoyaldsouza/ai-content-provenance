@@ -8,4 +8,4 @@ function buildClaimRecord({ claim, sources, modelId, generatedAt }) {
   };
 }
 
-export  { buildClaimRecord };
+export default buildClaimRecord;
