@@ -1,4 +1,5 @@
-pragma solidity ^0.8.24;f
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract BatchClaimRegistry {
@@ -12,6 +13,12 @@ contract BatchClaimRegistry {
     mapping(uint256 => Batch) public batches;
     uint256 public nextBatchId;
 
+    event ClaimAddedToBatch(
+        uint256 indexed batchId,
+        bytes32 indexed claimHash,
+        string ipfsCID
+    );
+
     event BatchRegistered(
         uint256 indexed batchId,
         bytes32 indexed merkleRoot,
@@ -23,10 +30,12 @@ contract BatchClaimRegistry {
     error EmptyBatch();
     error BatchNotFound(uint256 batchId);
     error InvalidProof();
+    error Mismatch();
 
    
-    function registerBatch(bytes32 merkleRoot, uint256 claimCount) external returns (uint256) {
+    function registerBatch(bytes32 merkleRoot, uint256 claimCount,bytes32[] calldata claimHashes,string[] calldata ipfsCIDs) external returns (uint256) {
         if (claimCount == 0) revert EmptyBatch();
+        if (claimHashes.length != claimCount || ipfsCIDs.length != claimCount) revert Mismatch();
 
         uint256 batchId = nextBatchId++;
         batches[batchId] = Batch({
@@ -35,6 +44,10 @@ contract BatchClaimRegistry {
             submitter: msg.sender,
             claimCount: claimCount
         });
+
+        for (uint256 i = 0; i < claimCount; i++) {
+        emit ClaimAddedToBatch(batchId, claimHashes[i], ipfsCIDs[i]);
+    }
 
         emit BatchRegistered(batchId, merkleRoot, msg.sender, claimCount, block.timestamp);
         return batchId;

@@ -11,18 +11,22 @@ contract BatchClaimRegistryTest is Test {
     }
 
     function test_RegisterAndVerifyBatch() public {
-        
         bytes32 leafA = keccak256(abi.encodePacked("claimA"));
         bytes32 leafB = keccak256(abi.encodePacked("claimB"));
         bytes32 leafC = keccak256(abi.encodePacked("claimC"));
         bytes32 leafD = keccak256(abi.encodePacked("claimD"));
 
-        // Pairwise hash up the tree (sorted pairs, matching OZ's MerkleProof + merkletreejs default)
         bytes32 nodeAB = _hashPair(leafA, leafB);
         bytes32 nodeCD = _hashPair(leafC, leafD);
         bytes32 root = _hashPair(nodeAB, nodeCD);
 
-        uint256 batchId = registry.registerBatch(root, 4);
+        bytes32[] memory hashes = new bytes32[](4);
+        hashes[0] = leafA; hashes[1] = leafB; hashes[2] = leafC; hashes[3] = leafD;
+
+        string[] memory cids = new string[](4);
+        cids[0] = "cidA"; cids[1] = "cidB"; cids[2] = "cidC"; cids[3] = "cidD";
+
+        uint256 batchId = registry.registerBatch(root, 4, hashes, cids);
 
         bytes32[] memory proof = new bytes32[](2);
         proof[0] = leafB;
@@ -36,7 +40,15 @@ contract BatchClaimRegistryTest is Test {
         bytes32 leafB = keccak256(abi.encodePacked("claimB"));
         bytes32 root = _hashPair(leafA, leafB);
 
-        uint256 batchId = registry.registerBatch(root, 2);
+        bytes32[] memory hashes = new bytes32[](2);
+        hashes[0] = leafA;
+        hashes[1] = leafB;
+
+        string[] memory cids = new string[](2);
+        cids[0] = "cidA";
+        cids[1] = "cidB";
+
+        uint256 batchId = registry.registerBatch(root, 2, hashes, cids);
 
         bytes32 wrongLeaf = keccak256(abi.encodePacked("claimX"));
         bytes32[] memory proof = new bytes32[](1);
