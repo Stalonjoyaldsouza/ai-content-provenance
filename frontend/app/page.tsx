@@ -102,9 +102,12 @@ function ResultCard({
 
           <div>
             <strong>Anchored:</strong>{" "}
-            {new Date(result.timestamp * 1000).toLocaleString()}
+            
           </div>
-
+          <div>Model: {result.modelId}</div>
+            {result.submitter && <div>Submitted by: {result.submitter}</div>}
+            {result.timestamp && <div>Anchored: {new Date(result.timestamp * 1000).toLocaleString()}</div>}
+          <div>Sources: {result.sources.join(", ")}</div>
           <div>
             <strong>Sources:</strong>{" "}
             {result.sources.join(", ")}

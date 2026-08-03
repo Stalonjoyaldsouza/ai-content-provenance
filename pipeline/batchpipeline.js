@@ -46,4 +46,4 @@ async function anchorBatch(claiminput){
 
     return { batchId: Number(batchId), root, txHash: reciept.hash, claims:result  };
 }       
-export {anchorBatch}; 
+export {anchorBatch};
