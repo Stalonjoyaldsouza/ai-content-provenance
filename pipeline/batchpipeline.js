@@ -10,13 +10,21 @@ async function anchorBatch(claiminput){
     for (const input of claiminput ){
         const record = buildClaimRecord(input);
         const {can,hash}= hashClaimRecord(record);
-        const cid =await  uploadClaimRecord(input);
-        processed.push({record,hash,cid});
+        processed.push({record,hash});
     }
-
+    const claimHash = processed.map((p)=>p.hash);
     const {tree,root}= buildMerkleTree(processed.map((p)=>p.hash))
-    
-    const  tx  = await contract.registerBatch(root, processed.length);
+
+    for(const p of processed  ){
+        p.proof = getProofForClaim(tree, p.hash);
+        p.cid  = await uploadClaimRecord(
+            {...p.record,
+            merkleProof : p.proof}
+        );
+    }
+    const cids = processed.map((p)=>p.cid);
+
+    const  tx  = await contract.registerBatch(root, processed.length,claimHash, cids);
     const reciept = await tx.wait();
     
     const event = reciept.logs.map((log)=>{
@@ -34,9 +42,8 @@ async function anchorBatch(claiminput){
     const  result = processed.map((p)=>({
         ...p,
         batchId: Number(batchId),
-        proof: getProofForClaim(tree, p.hash)
     }));
 
-    return { batchId: Number(batchId), root, txHash: reciept.hash, claims: result };
+    return { batchId: Number(batchId), root, txHash: reciept.hash, claims:result  };
 }       
-export {anchorBatch};
+export {anchorBatch}; 
