@@ -115,7 +115,5 @@ async function verifyBatchClaim(
     modelId: record.modelId,
     cid,
     batchId,
-    hash, //?
-
   };
 }
