@@ -2,11 +2,7 @@ import { ethers } from "ethers";
 import canonicalize from "canonicalize";
 import claimRegistryAbi from "./ClaimRegistry.json";
 import batchRegistryAbi from "./BatchClaimRegistry.json";
-console.log({
-  rpc: process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL,
-  claim: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
-  batch: process.env.NEXT_PUBLIC_BATCH_CONTRACT_ADDRESS,
-});
+
 
 const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL);
 
@@ -86,8 +82,13 @@ async function verifyBatchClaim(
 ): Promise<VerificationResult> {
   
   const filter = batchContract.filters.ClaimAddedToBatch(null, hash);
-  const events = await batchContract.queryFilter(filter);
-
+  const latest = await provider.getBlockNumber();
+  
+  console.log("Latest block:", latest);
+  const events = await batchContract.queryFilter(
+  filter,
+  Math.max(0, latest - 9),latest);
+    console.log("Events found:", events.length);
   if (events.length === 0) {
     return { status: "NOT_REGISTERED", cid };
   }
@@ -113,6 +114,8 @@ async function verifyBatchClaim(
     sources: record.sources,
     modelId: record.modelId,
     cid,
-    batchId
+    batchId,
+    hash, //?
+
   };
 }
