@@ -1,3 +1,5 @@
+"use server";
+
 import { ethers } from "ethers";
 import canonicalize from "canonicalize";
 import claimRegistryAbi from "./ClaimRegistry.json";
@@ -80,40 +82,45 @@ async function verifyBatchClaim(
   record: any,
   cid: string
 ): Promise<VerificationResult> {
-  
-  const filter = batchContract.filters.ClaimAddedToBatch(null, hash);
-  const latest = await provider.getBlockNumber();
-  
-  console.log("Latest block:", latest);
-  const events = await batchContract.queryFilter(
-  filter,
-  Math.max(0, latest - 9),latest);
-    console.log("Events found:", events.length);
-  if (events.length === 0) {
-    return { status: "NOT_REGISTERED", cid };
+  try {
+    const nextBatchId = Number(await batchContract.nextBatchId());
+    let validBatchId = -1;
+
+    const checks = [];
+    for (let i = 0; i < nextBatchId; i++) {
+      checks.push(
+        (async (id: number) => {
+          try {
+            const isValid = await batchContract.verifyClaim(id, hash, proof);
+            if (isValid) {
+              validBatchId = id;
+            }
+          } catch {
+            // Ignore revert/contract errors for other batches
+          }
+        })(i)
+      );
+    }
+    await Promise.all(checks);
+
+    if (validBatchId === -1) {
+      return { status: "NOT_REGISTERED", cid };
+    }
+
+    const batch = await batchContract.batches(validBatchId);
+
+    return {
+      status: "VALID",
+      mode: "batch",
+      claim: record.claim,
+      sources: record.sources,
+      modelId: record.modelId,
+      submitter: batch.submitter,
+      timestamp: Number(batch.timestamp),
+      cid,
+      batchId: validBatchId,
+    };
+  } catch (err: any) {
+    return { status: "ERROR", message: err.message ?? "Batch verification failed" };
   }
-
-  const event = events[0] as ethers.EventLog;
-  const batchId = Number(event.args.batchId);
-  const eventCid = event.args.ipfsCID;
-
-  if (eventCid !== cid) {
-    return { status: "TAMPERED", cid };
-  }
-
-  const isValid = await batchContract.verifyClaim(batchId, hash, proof);
-
-  if (!isValid) {
-    return { status: "TAMPERED", cid };
-  }
-
-  return {
-    status: "VALID",
-    mode: "batch",
-    claim: record.claim,
-    sources: record.sources,
-    modelId: record.modelId,
-    cid,
-    batchId,
-  };
 }

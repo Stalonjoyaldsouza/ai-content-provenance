@@ -1,3 +1,5 @@
+"use server";
+
 import { ethers } from "ethers";
 import abi from "./ClaimRegistry.json";
 
