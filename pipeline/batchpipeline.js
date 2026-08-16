@@ -44,6 +44,6 @@ async function anchorBatch(claiminput){
         batchId: Number(batchId),
     }));
 
-    return { batchId: Number(batchId), root, txHash: reciept.hash, claims:result  };
+    return { batchId: Number(batchId), root, txHash: reciept.hash, claims:result ,blockNumber: reciept.blockNumber };
 }       
 export {anchorBatch};
