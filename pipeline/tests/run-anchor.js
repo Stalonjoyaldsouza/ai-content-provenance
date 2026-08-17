@@ -35,6 +35,7 @@ console.log("\n--- BATCH ANCHORED ---");
 console.log("Batch ID:", result2.batchId);
 console.log("Root:", result2.root);
 console.log("Tx hash:", result2.txHash);
+console.log("Block number:",result2.blockNumber);
 console.log("\nClaims:");
 result2.claims.forEach((c, i) => {
   console.log(`\n[${i}] hash: ${c.hash}`);
